@@ -103,3 +103,87 @@ export default {
 }
 </script>
 ```
+
+> `ref` 跟 `reactive` 都是响应系统的核心方法，作为整个系统的入口
+> 
+> 可以将 `ref` 看成 `reactive` 的一个变形版本，这是由于 `reactive` 内部采用 [Proxy](https://vue3js.cn/es6/#%E6%AD%A3%E6%96%87) 来实现，而 `Proxy` 只接受对象作为入参，这才有了 `ref` 来解决值类型的数据响应，如果传入 `ref` 的是一个对象，内部也会调用 `reactive` 方法进行深层响应转换
+
+## toRef
+可以用来为源响应式对象上的某个 property 新创建一个 `ref`。然后，ref 可以被传递，它会保持对其源 property 的响应式连接。
+```vue
+const state = reactive({
+  foo: 1,
+  bar: 2
+})
+
+const fooRef = toRef(state, 'foo')
+
+fooRef.value++
+console.log(state.foo) // 2
+
+state.foo++
+console.log(fooRef.value) // 3
+```
+当你要将 prop 的 ref 传递给复合函数时，`toRef` 很有用：
+```vue
+export default {
+  setup(props) {
+    useSomeFeature(toRef(props, 'foo'))
+  }
+}
+```
+即使源 property 不存在，`toRef` 也会返回一个可用的 ref。这使得它在使用可选 prop 时特别有用，可选 prop 并不会被 `toRefs` 处理。
+
+## toRefs
+将响应式对象转换为普通对象，其中结果对象的每个 property 都是指向原始对象相应 property 的 `ref`。
+```javascript
+const state = reactive({
+  foo: 1,
+  bar: 2
+})
+
+const stateAsRefs = toRefs(state)
+/*
+stateAsRefs 的类型:
+
+{
+  foo: Ref<number>,
+  bar: Ref<number>
+}
+*/
+
+// ref 和原始 property 已经“链接”起来了
+state.foo++
+console.log(stateAsRefs.foo.value) // 2
+
+stateAsRefs.foo.value++
+console.log(state.foo) // 3
+```
+当从组合式函数返回响应式对象时，`toRefs` 非常有用，这样消费组件就可以在不丢失响应性的情况下对返回的对象进行解构/展开：
+```javascript
+function useFeatureX() {
+  const state = reactive({
+    foo: 1,
+    bar: 2
+  })
+
+  // 操作 state 的逻辑
+
+  // 返回时转换为ref
+  return toRefs(state)
+}
+
+export default {
+  setup() {
+    // 可以在不失去响应性的情况下解构
+    const { foo, bar } = useFeatureX()
+
+    return {
+      foo,
+      bar
+    }
+  }
+}
+
+```
+`toRefs` 只会为源对象中包含的 property 生成 ref。如果要为特定的 property 创建 ref，则应当使用 `toRef`
