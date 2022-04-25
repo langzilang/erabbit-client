@@ -1,8 +1,10 @@
 <template>
   <div class="container">
-    根组件
+<!--    根组件-->
+    <h1 @click="say">{{ msg }}</h1>
   </div>
 </template>
+<script>
 export default {
   name:'App',
   // 1. 组合API的起点，将来的组合API的代码，基本上在这里
@@ -14,12 +16,14 @@ export default {
     // 数据
     const msg = 'hi vue3'
     // 函数
-    const msg
+    const say = () => {
+      console.log('hi,vue3')
+    }
 
-    return { msg }
+    return { msg, say }
   },
   beforeCreate () {
     console.log('beforeCreate',this)
-    
-
   }
+}
+</script>
