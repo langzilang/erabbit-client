@@ -2,13 +2,13 @@
   <div class="container">
     <!--    根组件-->
     <div @click="updateName">
-      <!--      <div>{{  name }}</div>-->
-      <!--      <div>{{ age }}</div>-->
+            <div>{{  name }}</div>
+            <div>{{ age }}</div>
     </div>
   </div>
 </template>
 <script>
-  import { reactive } from "vue";
+  import { reactive, toRefs } from "vue";
   
   export default {
     name:'App',
@@ -24,18 +24,22 @@
       // console.log( 'name', name )
       // console.log( 'age', age )
       
-      const { name, age } = obj
-      console.log( 'name', name )
-      console.log( 'age', age )
-      const obj2 = { ...obj }
-      console.log( 'obj2', obj2 )  //此时obj2 就成了普通的对象数据， {name: 'zebras', age: 18}
+      // const { name, age } = obj
+      // console.log( 'name', name )
+      // console.log( 'age', age )
+      // const obj2 = { ...obj }
+      // console.log( 'obj2', obj2 )  //此时obj2 就成了普通的对象数据， {name: 'zebras', age: 18}
       const updateName = () => {
         console.log( 'updateName', updateName )
         // toRef转换响应式数据包装成对象，value是存放值的地方
-        name.value = 'zebra'
+        // obj2.name.value = 'zebra'
+        obj.name = 'zebra'
       }
       // 以上方式会导致数据不是响应式数据
-      return { }
+      const obj2 = toRefs(obj)
+      console.log( 'obj2', obj2 )
+      
+      return { ...obj2, updateName }
       // return { name, age, updateName }
     }
   }
